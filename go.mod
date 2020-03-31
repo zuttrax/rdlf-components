@@ -1,4 +1,4 @@
-module rdlf-components
+module github.com/zuttrax/rdlf-components
 
 go 1.14
 

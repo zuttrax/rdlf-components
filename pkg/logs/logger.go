@@ -13,9 +13,9 @@ type Log struct {
 }
 
 type Logger interface {
-	Info()
-	Error()
-	Fatal()
+	Info(string)
+	Error(error)
+	Fatal(error)
 }
 
 func (l Log) Info(info string) {

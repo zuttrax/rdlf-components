@@ -2,7 +2,6 @@ package logs
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"go.uber.org/zap"
@@ -41,11 +40,11 @@ func (l Log) Fatal(err error) {
 
 func initialConfiguration(app string) *zap.Logger {
 	date := time.Now().Format("01-02-2006")
-	outFile := fmt.Sprintf("/rdlf/%s-%s.log", app, date)
+
 	rawJSON := []byte(`{
 	  "level": "debug",
 	  "encoding": "json",
-	  "outputPaths": ["stdout",` + outFile + `],
+	  "outputPaths": ["stdout", "/rdlf/log-` + app + `-` + date + `.log"],
 	  "errorOutputPaths": ["stderr"],
 	  "encoderConfig": {
 	    "messageKey": "message",

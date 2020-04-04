@@ -9,8 +9,8 @@ import (
 )
 
 type Brifrost interface {
-	Post(*gin.Context, []byte) ([]byte, error)
-	Put(*gin.Context, []byte) ([]byte, error)
+	Post(*gin.Context, []byte) (*http.Response, error)
+	Put(*gin.Context, []byte) (*http.Response, error)
 	Get(*gin.Context) (*http.Response, error)
 	Delete(*gin.Context) (*http.Response, error)
 }

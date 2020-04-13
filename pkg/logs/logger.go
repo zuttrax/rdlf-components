@@ -19,6 +19,7 @@ type Logger interface {
 
 func (l Log) Info(info string) {
 	logger := initialConfiguration(l.AppName)
+	//nolint:errcheck
 	defer logger.Sync()
 	logger.Info(info)
 
@@ -26,6 +27,7 @@ func (l Log) Info(info string) {
 
 func (l Log) Error(err error) {
 	logger := initialConfiguration(l.AppName)
+	//nolint:errcheck
 	defer logger.Sync()
 	logger.Error(err.Error())
 
@@ -33,6 +35,7 @@ func (l Log) Error(err error) {
 
 func (l Log) Fatal(err error) {
 	logger := initialConfiguration(l.AppName)
+	//nolint:errcheck
 	defer logger.Sync()
 	logger.Fatal(err.Error())
 

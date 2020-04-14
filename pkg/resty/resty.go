@@ -43,9 +43,7 @@ func NewRequest(ttl int64, trace bool, baseURL string, head Headers) Request {
 		},
 		Trace:   trace,
 		Headers: head,
-		Log: logs.Log{
-			AppName: componentName,
-		},
+		Log:     logs.InitializeLog(componentName, "debug"),
 	}
 }
 

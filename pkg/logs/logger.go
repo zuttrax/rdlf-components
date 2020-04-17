@@ -1,15 +1,18 @@
 package logs
 
 import (
-	"encoding/json"
-	"time"
+	"fmt"
 
+	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-type Log struct {
-	AppName string
-}
+const (
+	DebugLevel = zapcore.DebugLevel
+	InfoLevel  = zapcore.InfoLevel
+	ErrorLevel = zapcore.ErrorLevel
+)
 
 type Logger interface {
 	Info(string)
@@ -17,55 +20,63 @@ type Logger interface {
 	Fatal(error)
 }
 
-func (l Log) Info(info string) {
-	logger := initialConfiguration(l.AppName)
-	defer logger.Sync()
-	logger.Info(info)
+type Log struct {
+	logger *zap.SugaredLogger
+}
 
+func InitializeLog(appName string, level string) Log {
+	writer := createLogWriterByAppName(appName)
+
+	encoder := getLogEncoder()
+
+	zapLevel := getLogLevel(level)
+
+	core := zapcore.NewCore(encoder, writer, zapLevel)
+
+	logger := zap.New(core).Sugar()
+
+	return Log{
+		logger: logger,
+	}
+}
+
+func createLogWriterByAppName(appName string) zapcore.WriteSyncer {
+	fileName := fmt.Sprintf("/rdlf/%s.log", appName)
+
+	lumberJackWriter := &lumberjack.Logger{
+		Filename:   fileName,
+		MaxSize:    10,
+		MaxBackups: 2,
+		MaxAge:     5,
+		Compress:   false,
+	}
+
+	return zapcore.AddSync(lumberJackWriter)
+}
+
+func getLogEncoder() zapcore.Encoder {
+	return zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
+}
+
+func getLogLevel(level string) zapcore.Level {
+	switch level {
+	case "debug":
+		return zapcore.DebugLevel
+	case "error":
+		return zapcore.ErrorLevel
+	default:
+		return zapcore.InfoLevel
+	}
+}
+
+func (l Log) Info(msg string) {
+	l.logger.Info(msg)
 }
 
 func (l Log) Error(err error) {
-	logger := initialConfiguration(l.AppName)
-	defer logger.Sync()
-	logger.Error(err.Error())
-
+	l.logger.Error(err.Error())
 }
 
 func (l Log) Fatal(err error) {
-	logger := initialConfiguration(l.AppName)
-	defer logger.Sync()
-	logger.Fatal(err.Error())
-
-}
-
-func initialConfiguration(app string) *zap.Logger {
-	date := time.Now().Format("01-02-2006")
-
-	rawJSON := []byte(`{
-	  "level": "debug",
-	  "encoding": "json",
-	  "outputPaths": ["stdout", "/rdlf/log-` + app + `-` + date + `.log"],
-	  "errorOutputPaths": ["stderr"],
-	  "encoderConfig": {
-	    "messageKey": "message",
-	    "levelKey": "level",
-		"levelEncoder": "lowercase",
-		"timeKey": "time",
-	    "timeEncoder": "ISO8601"
-	  }
-	}`)
-
-	var cfg zap.Config
-
-	if err := json.Unmarshal(rawJSON, &cfg); err != nil {
-		panic(err)
-	}
-
-	logger, err := cfg.Build()
-
-	if err != nil {
-		panic(err)
-	}
-
-	return logger
+	l.logger.Fatal(err.Error())
 }

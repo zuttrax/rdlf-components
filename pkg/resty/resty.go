@@ -53,11 +53,10 @@ type Endpoint struct {
 	parameters Parameters
 }
 
-func NewEndpoint(request Request, path string, parameters Parameters) Endpoint {
+func NewEndpoint(request Request, path string) Endpoint {
 	return Endpoint{
-		request:    request,
-		path:       path,
-		parameters: parameters,
+		request: request,
+		path:    path,
 	}
 }
 

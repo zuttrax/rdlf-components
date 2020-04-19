@@ -97,7 +97,7 @@ func TestRequest_Post(t *testing.T) {
 				Log:     LogStub{},
 			}
 
-			endpoint := resty.NewEndpoint(req, "", nil)
+			endpoint := resty.NewEndpoint(req, "")
 
 			tc.args.ctx = addContext(tc.args.ctx)
 
@@ -177,7 +177,7 @@ func TestRequest_Put(t *testing.T) {
 				Headers: tc.fields.headers,
 			}
 
-			endpoint := resty.NewEndpoint(req, "", nil)
+			endpoint := resty.NewEndpoint(req, "")
 
 			got, err := endpoint.Put(tc.args.ctx, tc.args.msg)
 
@@ -276,7 +276,7 @@ func TestRequest_Get(t *testing.T) {
 				Headers: tc.fields.headers,
 			}
 
-			endpoint := resty.NewEndpoint(req, "", nil)
+			endpoint := resty.NewEndpoint(req, "")
 
 			for k, v := range tc.fields.parameters {
 				endpoint.AddParameterValueByKey(k, v)
@@ -340,7 +340,7 @@ func TestRequest_Delete(t *testing.T) {
 				Headers: tc.fields.headers,
 			}
 
-			endpoint := resty.NewEndpoint(req, "", nil)
+			endpoint := resty.NewEndpoint(req, "")
 
 			got, err := endpoint.Delete(tc.args.ctx)
 

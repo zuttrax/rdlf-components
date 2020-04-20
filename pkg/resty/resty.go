@@ -20,6 +20,7 @@ type Resty interface {
 	Put(context.Context, []byte) (*http.Response, error)
 	Get(context.Context) (*http.Response, error)
 	Delete(context.Context) (*http.Response, error)
+	AddParameterValueByKey(string, string)
 }
 
 type Response struct {

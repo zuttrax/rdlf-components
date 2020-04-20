@@ -20,7 +20,7 @@ type Resty interface {
 	Put(context.Context, []byte) (*http.Response, error)
 	Get(context.Context) (*http.Response, error)
 	Delete(context.Context) (*http.Response, error)
-	AddParameterValueByKey(string, string) Endpoint
+	BuildParameterWithKeyAndValue(string, string) Endpoint
 }
 
 type Response struct {
@@ -77,7 +77,7 @@ func (e Endpoint) Delete(ctx context.Context) (*http.Response, error) {
 	return e.doRequest(ctx, nil, http.MethodDelete)
 }
 
-func (e Endpoint) AddParameterByKeyAndValue(key string, value string) Endpoint {
+func (e Endpoint) BuildParameterWithKeyAndValue(key string, value string) Endpoint {
 	parameters := make(map[string]string)
 	for k, v := range e.parameters {
 		parameters[k] = v

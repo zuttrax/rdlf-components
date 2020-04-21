@@ -279,7 +279,7 @@ func TestRequest_Get(t *testing.T) {
 			endpoint := resty.NewEndpoint(req, "")
 
 			for k, v := range tc.fields.parameters {
-				endpoint = endpoint.BuildParameterWithKeyAndValue(k, v)
+				resty.AddParamsToEndpoint(&endpoint, k, v)
 			}
 
 			got, err := endpoint.Get(tc.args.ctx)

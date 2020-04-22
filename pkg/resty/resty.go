@@ -50,7 +50,7 @@ func NewRequest(ttl int64, trace bool, baseURL string, head Headers) Request {
 type Endpoint struct {
 	request    Request
 	path       string
-	parameters Parameters
+	Parameters Parameters
 }
 
 func NewEndpoint(request Request, path string) Endpoint {
@@ -76,15 +76,19 @@ func (e Endpoint) Delete(ctx context.Context) (*http.Response, error) {
 	return e.doRequest(ctx, nil, http.MethodDelete)
 }
 
-func AddParamsToEndpoint(e *Endpoint, key string, value string) {
-	parameters := make(map[string]string)
-	for k, v := range e.parameters {
-		parameters[k] = v
+func NewParameters() Parameters {
+	return make(map[string]string)
+}
+
+func (p Parameters) Add(key string, value string) Parameters {
+	parametersResult := make(map[string]string)
+	for k, v := range p {
+		parametersResult[k] = v
 	}
 
-	parameters[key] = value
+	parametersResult[key] = value
 
-	e.parameters = parameters
+	return parametersResult
 }
 
 func (e Endpoint) doRequest(ctx context.Context, msg []byte, method string) (*http.Response, error) {
@@ -97,7 +101,7 @@ func (e Endpoint) doRequest(ctx context.Context, msg []byte, method string) (*ht
 		return nil, err
 	}
 
-	addQueryParamsToRequest(httpRequest, e.parameters)
+	addQueryParamsToRequest(httpRequest, e.Parameters)
 
 	addHeadersToRequest(httpRequest, e.request.Headers)
 

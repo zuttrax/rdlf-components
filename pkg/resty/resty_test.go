@@ -278,9 +278,12 @@ func TestRequest_Get(t *testing.T) {
 
 			endpoint := resty.NewEndpoint(req, "")
 
+			queryParams := resty.NewParameters()
 			for k, v := range tc.fields.parameters {
-				resty.AddParamsToEndpoint(&endpoint, k, v)
+				queryParams = queryParams.Add(k, v)
 			}
+
+			endpoint.Parameters = queryParams
 
 			got, err := endpoint.Get(tc.args.ctx)
 

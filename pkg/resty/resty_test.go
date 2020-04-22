@@ -283,9 +283,7 @@ func TestRequest_Get(t *testing.T) {
 				queryParams = queryParams.Add(k, v)
 			}
 
-			endpoint.Parameters = queryParams
-
-			got, err := endpoint.Get(tc.args.ctx)
+			got, err := endpoint.Get(tc.args.ctx, queryParams)
 
 			if tc.wantErr {
 				require.Error(t, err)

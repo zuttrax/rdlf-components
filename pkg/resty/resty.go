@@ -18,7 +18,7 @@ const componentName = "resty-component"
 type Resty interface {
 	Post(context.Context, []byte) (*http.Response, error)
 	Put(context.Context, []byte) (*http.Response, error)
-	Get(context.Context) (*http.Response, error)
+	Get(context.Context, Parameters) (*http.Response, error)
 	Delete(context.Context) (*http.Response, error)
 }
 
@@ -50,7 +50,7 @@ func NewRequest(ttl int64, trace bool, baseURL string, head Headers) Request {
 type Endpoint struct {
 	request    Request
 	path       string
-	Parameters Parameters
+	parameters Parameters
 }
 
 func NewEndpoint(request Request, path string) Endpoint {
@@ -68,7 +68,9 @@ func (e Endpoint) Put(ctx context.Context, msg []byte) (*http.Response, error) {
 	return e.doRequest(ctx, msg, http.MethodPut)
 }
 
-func (e Endpoint) Get(ctx context.Context) (*http.Response, error) {
+func (e Endpoint) Get(ctx context.Context, params Parameters) (*http.Response, error) {
+	e.parameters = params
+
 	return e.doRequest(ctx, nil, http.MethodGet)
 }
 
@@ -101,7 +103,7 @@ func (e Endpoint) doRequest(ctx context.Context, msg []byte, method string) (*ht
 		return nil, err
 	}
 
-	addQueryParamsToRequest(httpRequest, e.Parameters)
+	addQueryParamsToRequest(httpRequest, e.parameters)
 
 	addHeadersToRequest(httpRequest, e.request.Headers)
 

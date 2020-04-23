@@ -97,11 +97,10 @@ func TestRequest_Post(t *testing.T) {
 				Log:     LogStub{},
 			}
 
-			endpoint := resty.NewEndpoint(req, "")
-
 			tc.args.ctx = addContext(tc.args.ctx)
+			body := resty.SetBody(tc.args.msg)
 
-			got, err := endpoint.Post(tc.args.ctx, tc.args.msg)
+			got, err := req.Post(tc.args.ctx, body)
 
 			if tc.wantErr {
 				require.Error(t, err)
@@ -177,9 +176,10 @@ func TestRequest_Put(t *testing.T) {
 				Headers: tc.fields.headers,
 			}
 
-			endpoint := resty.NewEndpoint(req, "")
+			body := resty.SetBody(tc.args.msg)
+			path := resty.SetPath("/resource/123")
 
-			got, err := endpoint.Put(tc.args.ctx, tc.args.msg)
+			got, err := req.Put(tc.args.ctx, body, path)
 
 			if tc.wantErr {
 				require.Error(t, err)
@@ -276,14 +276,14 @@ func TestRequest_Get(t *testing.T) {
 				Headers: tc.fields.headers,
 			}
 
-			endpoint := resty.NewEndpoint(req, "")
-
 			queryParams := resty.NewParameters()
 			for k, v := range tc.fields.parameters {
 				queryParams = queryParams.Add(k, v)
 			}
+			qParams := resty.SetQueryParams(queryParams)
+			path := resty.SetPath("/resource/12345")
 
-			got, err := endpoint.Get(tc.args.ctx, queryParams)
+			got, err := req.Get(tc.args.ctx, qParams, path)
 
 			if tc.wantErr {
 				require.Error(t, err)
@@ -341,9 +341,9 @@ func TestRequest_Delete(t *testing.T) {
 				Headers: tc.fields.headers,
 			}
 
-			endpoint := resty.NewEndpoint(req, "")
+			path := resty.SetPath("/resource/12345")
 
-			got, err := endpoint.Delete(tc.args.ctx)
+			got, err := req.Delete(tc.args.ctx, path)
 
 			if tc.wantErr {
 				require.Error(t, err)

@@ -15,10 +15,10 @@ type Headers map[string]string
 const componentName = "resty-component"
 
 type Resty interface {
-	Post(context.Context, []byte) (*http.Response, error)
-	Put(context.Context, []byte) (*http.Response, error)
-	Get(context.Context, Parameters) (*http.Response, error)
-	Delete(context.Context) (*http.Response, error)
+	Post(context.Context, ...RestyOptions) (*http.Response, error)
+	Put(context.Context, ...RestyOptions) (*http.Response, error)
+	Get(context.Context, ...RestyOptions) (*http.Response, error)
+	Delete(context.Context, ...RestyOptions) (*http.Response, error)
 }
 
 type Response struct {

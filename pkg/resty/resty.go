@@ -11,7 +11,6 @@ import (
 )
 
 type Headers map[string]string
-type Parameters map[string]string
 
 const componentName = "resty-component"
 
@@ -47,75 +46,42 @@ func NewRequest(ttl int64, trace bool, baseURL string, head Headers) Request {
 	}
 }
 
-type Endpoint struct {
-	request    Request
-	path       string
-	parameters Parameters
+func (r Request) Post(ctx context.Context, opt ...RestyOptions) (*http.Response, error) {
+	return r.doRequest(ctx, http.MethodPost, opt...)
 }
 
-func NewEndpoint(request Request, path string) Endpoint {
-	return Endpoint{
-		request: request,
-		path:    path,
-	}
+func (r Request) Put(ctx context.Context, opt ...RestyOptions) (*http.Response, error) {
+	return r.doRequest(ctx, http.MethodPut, opt...)
 }
 
-func (e Endpoint) Post(ctx context.Context, msg []byte) (*http.Response, error) {
-	return e.doRequest(ctx, msg, http.MethodPost)
+func (r Request) Get(ctx context.Context, opt ...RestyOptions) (*http.Response, error) {
+	return r.doRequest(ctx, http.MethodGet, opt...)
 }
 
-func (e Endpoint) Put(ctx context.Context, msg []byte) (*http.Response, error) {
-	return e.doRequest(ctx, msg, http.MethodPut)
+func (r Request) Delete(ctx context.Context, opt ...RestyOptions) (*http.Response, error) {
+	return r.doRequest(ctx, http.MethodDelete, opt...)
 }
 
-func (e Endpoint) Get(ctx context.Context, params Parameters) (*http.Response, error) {
-	e.parameters = params
+func (r Request) doRequest(ctx context.Context, method string, opt ...RestyOptions) (*http.Response, error) {
+	r.logContext(ctx)
 
-	return e.doRequest(ctx, nil, http.MethodGet)
-}
-
-func (e Endpoint) Delete(ctx context.Context) (*http.Response, error) {
-	return e.doRequest(ctx, nil, http.MethodDelete)
-}
-
-func NewParameters() Parameters {
-	return make(map[string]string)
-}
-
-func (p Parameters) Add(key string, value string) Parameters {
-	parametersResult := make(map[string]string)
-	for k, v := range p {
-		parametersResult[k] = v
+	var restyOpt options
+	for i := range opt {
+		opt[i](&restyOpt)
 	}
 
-	parametersResult[key] = value
+	url := fmt.Sprintf("%s%s", r.BaseURL, restyOpt.path)
 
-	return parametersResult
-}
-
-func (e Endpoint) doRequest(ctx context.Context, msg []byte, method string) (*http.Response, error) {
-	url := fmt.Sprintf("%s%s", e.request.BaseURL, e.path)
-
-	e.request.logContext(ctx)
-
-	httpRequest, err := http.NewRequest(method, url, bytes.NewBuffer(msg))
+	httpRequest, err := http.NewRequest(method, url, bytes.NewBuffer(restyOpt.body))
 	if err != nil {
 		return nil, err
 	}
 
-	addQueryParamsToRequest(httpRequest, e.parameters)
+	addQueryParamsToRequest(httpRequest, restyOpt.params)
 
-	addHeadersToRequest(httpRequest, e.request.Headers)
+	addHeadersToRequest(httpRequest, r.Headers)
 
-	return e.request.Client.Do(httpRequest)
-}
-
-func addQueryParamsToRequest(httpRequest *http.Request, params Parameters) {
-	queryParams := httpRequest.URL.Query()
-	for key, value := range params {
-		queryParams.Add(key, value)
-	}
-	httpRequest.URL.RawQuery = queryParams.Encode()
+	return r.Client.Do(httpRequest)
 }
 
 func addHeadersToRequest(httpRequest *http.Request, headers Headers) {
